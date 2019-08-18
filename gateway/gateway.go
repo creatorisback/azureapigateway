@@ -13,7 +13,7 @@ func APIGateway(handler http.HandlerFunc, secure bool) http.HandlerFunc {
 			// Copying request header
 			*r2 = *r
 			client := &http.Client{}
-			req, err := http.NewRequest("GET", "http://localhost:8080/auth", nil)
+			req, err := http.NewRequest("GET", "https://authenticate1.azurewebsites.net/auth", nil)
 
 			// Passing request header to auth api
 			req.Header = r2.Header
