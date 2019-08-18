@@ -1,10 +1,11 @@
 package main
 
 import (
-	"azureApiGateway/authenticator"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/creatorisback/azureapigateway/authenticator"
 
 	"github.com/gorilla/mux"
 )
