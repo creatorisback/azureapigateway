@@ -1,59 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/creatorisback/azureapigateway/authenticator"
+	"github.com/creatorisback/azureapigateway/gateway"
+	"github.com/creatorisback/azureapigateway/handlers"
 
 	"github.com/gorilla/mux"
 )
 
-func init() {
-	// check if authenticator service is up or not
-}
 func main() {
 	r := mux.NewRouter()
+	r.HandleFunc("/", handlers.Home)
 	r.HandleFunc("/auth", authenticator.Authenticator).Methods("GET")
 
 	// passing true for secured routes and false for unsecured along with handler function
-	r.HandleFunc("/user/profile", apiGateway(handleProfile, true)).Methods("GET")
-	r.HandleFunc("/microservice/name", apiGateway(microserviceName, false)).Methods("GET")
+	r.HandleFunc("/user/profile", gateway.APIGateway(handlers.Profile, true)).Methods("GET")
+	r.HandleFunc("/microservice/name", gateway.APIGateway(handlers.MicroserviceName, false)).Methods("GET")
 
-	// starting server
+	// starting server at 8080
 	log.Fatal(http.ListenAndServe(":8080", r))
-}
-func microserviceName(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("user-microservice"))
-}
-func handleProfile(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello there"))
-	w.WriteHeader(http.StatusOK)
-}
-
-func apiGateway(handler http.HandlerFunc, secure bool) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if secure {
-			r2 := new(http.Request)
-			*r2 = *r
-			client := &http.Client{}
-			req, err := http.NewRequest("GET", "http://localhost:8080/auth", nil)
-			req.Header = r2.Header
-			if err != nil {
-				println("cannot call auth")
-			}
-			resp, err := client.Do(req)
-
-			if resp.StatusCode == 200 {
-				handler.ServeHTTP(w, r)
-			} else {
-				w.WriteHeader(http.StatusUnauthorized)
-			}
-			fmt.Println(resp)
-
-		} else {
-			handler.ServeHTTP(w, r)
-		}
-	})
 }
